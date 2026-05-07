@@ -1,0 +1,9 @@
+yt-dlp
+openai-whisper
+librosa
+streamlit
+numpy
+torch
+ffmpeg-python
+soundfile
+scipy
