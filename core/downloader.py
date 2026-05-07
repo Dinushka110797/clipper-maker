@@ -2,26 +2,29 @@ import yt_dlp
 import os
 
 def download_video(url: str, output_dir: str = "temp") -> str:
-    """
-    Downloads a YouTube video and returns the file path.
-    """
     os.makedirs(output_dir, exist_ok=True)
 
     ydl_opts = {
-        "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+        "format": "best[ext=mp4]/best",
         "outtmpl": os.path.join(output_dir, "%(title)s.%(ext)s"),
         "merge_output_format": "mp4",
         "quiet": False,
         "no_warnings": False,
+        "nocheckcertificate": True,
+        "extractor_retries": 3,
+        "http_headers": {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-us,en;q=0.5",
+            "Sec-Fetch-Mode": "navigate",
+        },
+        "compat_opts": {"no-youtube-unavailable-videos"},
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
-        title = info.get("title", "video")
-        ext = info.get("ext", "mp4")
         filename = ydl.prepare_filename(info)
 
-    # Normalize extension to .mp4
     if not filename.endswith(".mp4"):
         filename = os.path.splitext(filename)[0] + ".mp4"
 
@@ -30,16 +33,21 @@ def download_video(url: str, output_dir: str = "temp") -> str:
 
 
 def get_video_info(url: str) -> dict:
-    """
-    Fetches video metadata without downloading.
-    """
-    ydl_opts = {"quiet": True, "skip_download": True}
+    ydl_opts = {
+        "quiet": True,
+        "skip_download": True,
+        "nocheckcertificate": True,
+        "http_headers": {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "en-us,en;q=0.5",
+        },
+    }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
         return {
             "title": info.get("title"),
-            "duration": info.get("duration"),  # in seconds
+            "duration": info.get("duration"),
             "thumbnail": info.get("thumbnail"),
             "uploader": info.get("uploader"),
         }
