@@ -51,7 +51,7 @@ if url:
 
         st.divider()
 
-        if st.button("🚀 Generate Clips", use_width=True):
+        if st.button("🚀 Generate Clips", use_container_width=True):
 
             # Step 1 — Download
             with st.status("📥 Downloading video...", expanded=True) as status:
